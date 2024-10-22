@@ -11,18 +11,25 @@ class ViewController: UIViewController {
     lazy var searchTitle: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Search your Cep"
+        label.text = "Buscador de Cep"
         label.font = UIFont.systemFont(ofSize: 24, weight: .bold)
-        label.textColor = .black
+        label.textColor = UIColor(named: "titleColor")
         return label
     }()
     
     lazy var fieldCep: UITextField = {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.backgroundColor = .black
+        textField.backgroundColor = UIColor(named: "colorTextField")
+        textField.placeholder = "Digite seu CEP"
         textField.keyboardType = .decimalPad
-        textField.layer.cornerRadius = 20
+        textField.layer.cornerRadius = 8
+        textField.borderStyle = .none
+        textField.layer.borderColor = UIColor.black.cgColor
+        textField.layer.borderWidth = 1
+        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: textField.frame.height))
+        textField.leftView = paddingView
+        textField.leftViewMode = .always
         return textField
     }()
     
@@ -30,10 +37,10 @@ class ViewController: UIViewController {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 10
-        button.backgroundColor = .gray
-        button.setTitle("Search", for: .normal)
+        button.backgroundColor = UIColor(named: "ColorButton")
+        button.setTitle("Buscar", for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 24)
-        button.setTitleColor(UIColor.black, for: .normal)
+        button.setTitleColor(UIColor(named: "titleColor"), for: .normal)
         button.addTarget(self, action: #selector(handleSearchCep), for: .touchDown)
         button.addTarget(self, action: #selector(handleSearchCep), for: [.touchUpInside, .touchUpOutside])
         return button
@@ -43,7 +50,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         setHierarchy()
         setConstraints()
-        view.backgroundColor = .yellow
+        view.backgroundColor = UIColor(named: "backgroundColor")
     }
     
     private func setHierarchy(){
@@ -62,14 +69,14 @@ class ViewController: UIViewController {
             fieldCep.topAnchor.constraint(equalTo: searchTitle.bottomAnchor, constant: 20),
             fieldCep.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             fieldCep.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            fieldCep.heightAnchor.constraint(equalToConstant: 40)
+            fieldCep.heightAnchor.constraint(equalToConstant: 55)
         ])
         
         NSLayoutConstraint.activate([
             searchButton.topAnchor.constraint(equalTo: fieldCep.bottomAnchor, constant: 20),
             searchButton.trailingAnchor.constraint(equalTo: fieldCep.trailingAnchor),
             searchButton.heightAnchor.constraint(equalToConstant: 60),
-            searchButton.widthAnchor.constraint(equalToConstant: 100)
+            searchButton.widthAnchor.constraint(equalToConstant: 120)
         ])
         
     }
