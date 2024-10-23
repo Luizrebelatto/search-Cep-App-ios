@@ -42,8 +42,18 @@ class ViewController: UIViewController {
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 24)
         button.setTitleColor(UIColor(named: "titleColor"), for: .normal)
         button.addTarget(self, action: #selector(handleSearchCep), for: .touchDown)
-        button.addTarget(self, action: #selector(handleSearchCep), for: [.touchUpInside, .touchUpOutside])
         return button
+    }()
+    
+    lazy var card: UIView = {
+        let card = UIView()
+        card.translatesAutoresizingMaskIntoConstraints = false
+        card.backgroundColor = UIColor(named: "ColorButton")
+        card.clipsToBounds = true
+        card.layer.cornerRadius = 20
+        card.layer.borderColor = UIColor(named: "colorTextField")?.cgColor
+        card.layer.borderWidth = 6
+        return card
     }()
     
     override func viewDidLoad() {
@@ -57,6 +67,7 @@ class ViewController: UIViewController {
         view.addSubview(searchTitle)
         view.addSubview(fieldCep)
         view.addSubview(searchButton)
+        view.addSubview(card)
     }
     
     private func setConstraints(){
@@ -77,6 +88,13 @@ class ViewController: UIViewController {
             searchButton.trailingAnchor.constraint(equalTo: fieldCep.trailingAnchor),
             searchButton.heightAnchor.constraint(equalToConstant: 60),
             searchButton.widthAnchor.constraint(equalToConstant: 120)
+        ])
+        
+        NSLayoutConstraint.activate([
+            card.topAnchor.constraint(equalTo: searchButton.bottomAnchor, constant: 30),
+            card.leadingAnchor.constraint(equalTo: fieldCep.leadingAnchor),
+            card.trailingAnchor.constraint(equalTo: fieldCep.trailingAnchor),
+            card.heightAnchor.constraint(equalToConstant: 200)
         ])
         
     }
