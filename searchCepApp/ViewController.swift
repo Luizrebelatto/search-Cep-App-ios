@@ -1,105 +1,117 @@
-//
-//  ViewController.swift
-//  searchCepApp
-//
-//  Created by Luiz Gabriel Rebelatto Bianchi on 21/10/24.
-//
-
 import UIKit
+import MapKit
+import CoreLocation
 
-class ViewController: UIViewController {
-    lazy var searchTitle: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Buscador de Cep"
-        label.font = UIFont.systemFont(ofSize: 24, weight: .bold)
-        label.textColor = UIColor(named: "titleColor")
-        return label
-    }()
+class ViewController: UIViewController, CLLocationManagerDelegate {
     
-    lazy var fieldCep: UITextField = {
-        let textField = UITextField()
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.backgroundColor = UIColor(named: "colorTextField")
-        textField.placeholder = "Digite seu CEP"
-        textField.keyboardType = .decimalPad
-        textField.layer.cornerRadius = 8
-        textField.borderStyle = .none
-        textField.layer.borderColor = UIColor.black.cgColor
-        textField.layer.borderWidth = 1
-        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: textField.frame.height))
-        textField.leftView = paddingView
-        textField.leftViewMode = .always
-        return textField
-    }()
-    
-    lazy var searchButton: UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.layer.cornerRadius = 10
-        button.backgroundColor = UIColor(named: "ColorButton")
-        button.setTitle("Buscar", for: .normal)
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 24)
-        button.setTitleColor(UIColor(named: "titleColor"), for: .normal)
-        button.addTarget(self, action: #selector(handleSearchCep), for: .touchDown)
-        return button
-    }()
-    
-    lazy var card: UIView = {
-        let card = UIView()
-        card.translatesAutoresizingMaskIntoConstraints = false
-        card.backgroundColor = UIColor(named: "ColorButton")
-        card.clipsToBounds = true
-        card.layer.cornerRadius = 20
-        card.layer.borderColor = UIColor(named: "colorTextField")?.cgColor
-        card.layer.borderWidth = 6
-        return card
-    }()
-    
+    // Cria o `mapView` e `bottomView`
+    let mapView = MKMapView()
+    let bottomView = UIView()
+    let locationManager = CLLocationManager()
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        setHierarchy()
-        setConstraints()
-        view.backgroundColor = UIColor(named: "backgroundColor")
+        view.backgroundColor = .white
+        
+        setupMapView()
+        setupBottomView()
+        setupLocationManager()
+        centerMapOnLocation()
     }
     
-    private func setHierarchy(){
-        view.addSubview(searchTitle)
-        view.addSubview(fieldCep)
-        view.addSubview(searchButton)
-        view.addSubview(card)
+    private func setupMapView() {
+        // Configura o `mapView`
+        mapView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(mapView)
+
+        mapView.showsUserLocation = true
+        mapView.mapType = .standard
+        
+        // Define as restrições do `mapView` para estar no topo com altura fixa
+        NSLayoutConstraint.activate([
+            mapView.topAnchor.constraint(equalTo: view.topAnchor),
+            mapView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            mapView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            mapView.heightAnchor.constraint(equalToConstant: 300)
+        ])
     }
     
-    private func setConstraints(){
+    private func setupBottomView() {
+        // Configura a `bottomView`
+        bottomView.backgroundColor = .systemBlue
+        bottomView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(bottomView)
+        
+        // Define as restrições da `bottomView` para preencher o espaço abaixo do `mapView`
         NSLayoutConstraint.activate([
-            searchTitle.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            searchTitle.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            bottomView.topAnchor.constraint(equalTo: mapView.bottomAnchor),
+            bottomView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
-        NSLayoutConstraint.activate([
-            fieldCep.topAnchor.constraint(equalTo: searchTitle.bottomAnchor, constant: 20),
-            fieldCep.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            fieldCep.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            fieldCep.heightAnchor.constraint(equalToConstant: 55)
-        ])
-        
-        NSLayoutConstraint.activate([
-            searchButton.topAnchor.constraint(equalTo: fieldCep.bottomAnchor, constant: 20),
-            searchButton.trailingAnchor.constraint(equalTo: fieldCep.trailingAnchor),
-            searchButton.heightAnchor.constraint(equalToConstant: 60),
-            searchButton.widthAnchor.constraint(equalToConstant: 120)
-        ])
-        
-        NSLayoutConstraint.activate([
-            card.topAnchor.constraint(equalTo: searchButton.bottomAnchor, constant: 30),
-            card.leadingAnchor.constraint(equalTo: fieldCep.leadingAnchor),
-            card.trailingAnchor.constraint(equalTo: fieldCep.trailingAnchor),
-            card.heightAnchor.constraint(equalToConstant: 200)
-        ])
-        
+        // Adiciona bordas nas pontas superiores
+        addTopBorders(to: bottomView)
     }
     
-    @objc func handleSearchCep(){
-        print("Search")
+    private func addTopBorders(to view: UIView) {
+        let borderWidth: CGFloat = 2.0 // Largura da borda
+        let borderColor = UIColor.red.cgColor // Cor da borda
+
+        // Borda esquerda
+        let leftBorder = CALayer()
+        leftBorder.backgroundColor = borderColor
+        leftBorder.frame = CGRect(x: 0, y: 0, width: borderWidth, height: 100) // 20 é a altura da borda
+        view.layer.addSublayer(leftBorder)
+
+        // Borda direita
+        let rightBorder = CALayer()
+        rightBorder.backgroundColor = borderColor
+        rightBorder.frame = CGRect(x: view.frame.width - borderWidth, y: 0, width: borderWidth, height: 20) // 20 é a altura da borda
+        view.layer.addSublayer(rightBorder)
+    }
+    
+    private func setupLocationManager() {
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+    }
+    
+    private func centerMapOnLocation() {
+        let location = CLLocation(latitude: 37.7749, longitude: -122.4194) // Exemplo: São Francisco
+        let regionRadius: CLLocationDistance = 10000
+
+        let coordinateRegion = MKCoordinateRegion(
+            center: location.coordinate,
+            latitudinalMeters: regionRadius,
+            longitudinalMeters: regionRadius
+        )
+        mapView.setRegion(coordinateRegion, animated: true)
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.first else { return }
+        let coordinateRegion = MKCoordinateRegion(
+            center: location.coordinate,
+            latitudinalMeters: 10000,
+            longitudinalMeters: 10000
+        )
+        mapView.setRegion(coordinateRegion, animated: true)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // Atualiza as bordas após o layout
+        updateTopBorders(for: bottomView)
+    }
+
+    private func updateTopBorders(for view: UIView) {
+        let borderWidth: CGFloat = 2.0
+        let leftBorder = view.layer.sublayers?[0] as? CALayer
+        let rightBorder = view.layer.sublayers?[1] as? CALayer
+        
+        leftBorder?.frame = CGRect(x: 0, y: 0, width: borderWidth, height: 20)
+        rightBorder?.frame = CGRect(x: view.frame.width - borderWidth, y: 0, width: borderWidth, height: 20)
     }
 }
